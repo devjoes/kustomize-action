@@ -58,6 +58,8 @@ spec:
             - --port=8080
             - --enableRiskyFeature=$(ENABLE_RISKY)
           env:
+            - name: SHOULD_BREAK
+              value: a
             - name: ALT_GREETING
               valueFrom:
                 configMapKeyRef:

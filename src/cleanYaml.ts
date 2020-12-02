@@ -174,12 +174,12 @@ export const customValidation = (
   logger?.log(JSON.stringify(customValidation, null, 2));
   return customValidation
     .filter(v => {
-      const m = v.regex.test(input);
-      const fail = m !== v.expected;
+      const m = v.regex.exec(input);
+      const fail = !!m !== v.expected;
       logger?.log(
         `${v.regex.source}	:${m ? 'Matched' : 'Not matched'}	${
           fail ? 'Fail ' : 'Pass'
-        }`
+        } "${m && m!}"`
       );
       return fail;
     })

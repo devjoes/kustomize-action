@@ -15,21 +15,23 @@ jobs:
     steps:
       - name: Setup environment. We ideally you would use a private github runner and not have to do this
         run: |
-          mkdir -p "/tmp/tmp_${GITHUB_RUN_ID}/"; echo 'resources: [main.yaml]' > "/tmp/tmp_${GITHUB_RUN_ID}/kustomization.yaml"
+          mkdir -p "/tmp/tmp_${GITHUB_RUN_ID}/"
+          echo 'resources: [ main.yaml ]' > "/tmp/tmp_${GITHUB_RUN_ID}/kustomization.yaml"
           export KUSTOMIZE_PLUGIN_HOME=/tmp/kustomize; mkdir -p $KUSTOMIZE_PLUGIN_HOME
-          printenv
+
           (command -v kubeval && command -v kustomize && command -v helm) || (
-          tmp="$(mktemp -d)";cd "$tmp"
-          wget https://get.helm.sh/helm-v3.4.1-linux-amd64.tar.gz &
-          wget https://github.com/instrumenta/kubeval/releases/download/0.15.0/kubeval-linux-amd64.tar.gz &
-          wget https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv3.5.4/kustomize_v3.5.4_linux_amd64.tar.gz &
-          wait < <( jobs -p)
-          for t in *.tar.gz; do
-            tar xvzf $t
-          done;
-          sudo mv kubeval kustomize linux-amd64/helm /usr/bin/
-          cd -
-          rm -Rf "$tmp"
+            tmp="$(mktemp -d)"
+            cd "$tmp"
+            wget https://get.helm.sh/helm-v3.4.1-linux-amd64.tar.gz &
+            wget https://github.com/instrumenta/kubeval/releases/download/0.15.0/kubeval-linux-amd64.tar.gz &
+            wget https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv3.5.4/kustomize_v3.5.4_linux_amd64.tar.gz &
+            wait < <( jobs -p)
+            for t in *.tar.gz; do
+              tar xvzf $t
+            done;
+            sudo mv kubeval kustomize linux-amd64/helm /usr/bin/
+            cd -
+            rm -Rf "$tmp"
           )
       - uses: actions/checkout@v2
         name: Checkout
@@ -38,20 +40,28 @@ jobs:
         uses: ./ #devjoes/kustomize-action@v0.0.2
         with:
           kustomize-path: ./example/input/dev
-          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"YAML","errorsVariableName":"ERRORS"},{"type":"FileOutputAction","createDirIfMissing":true,"fileOpenFlags":"w","dontOutputIfErrored":true,"fileName":"/tmp/tmp_${GITHUB_RUN_ID}/main.yaml"}]'
-          verbose: false
+          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"yaml"},{"type":"FileOutputAction","createDirIfMissing":true,"fileOpenFlags":"w","dontOutputIfErrored":true,"fileName":"/tmp/tmp_${GITHUB_RUN_ID}/main.yaml"}]'
+          custom-validation-rules: "ERROR Found \"kind: azuresecrets\"|false|/kind:\\s*azuresecrets/i\nERROR Found \"kind: secretsealer\"|false|/kind:\\s*secretsealer/i\nERROR Found $(foo.bar) - looks like unreplaced kustomize verRef. If not then remove the .|false|/\\$\\([^\\)\\s]+\\.[^\\)\\s]+\\)/i"
+          verbose: true
+        continue-on-error: true
       - name: test alongside other envs
         id: integrate
-        if: success()
+        if: success() && steps.build_environment.outcome == 'success'
         uses: ./ #devjoes/kustomize-action@v0.0.2
         with:
           kustomize-path: /tmp/tmp_${GITHUB_RUN_ID}/
-          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"INTEGRATE_YAML","errorsVariableName":"INTEGRATE_ERRORS"}]'
+          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"yaml","errorsVariableName":"errors"}]'
           extra-resources: './example/output/test.yaml,./example/output/core-infra.yaml'
-          verbose: false
+          verbose: true
           # disable kubeval? maybe remove alpha plugin args
+        continue-on-error: true
       - name: Commit kustomize output
-        if: success()
+        if: success() && steps.build_environment.outcome == 'success' && steps.integrate.outcome == 'success'
+        env:
+          FINAL_YAML: "a${{ toJson(steps) }}b"
+          FINAL_ERRORS: "a${{ steps.integrate.outputs.errors }}b"
+          FINAL_OUTCOME: "${{ steps.integrate.outcome }}"
+          OUTPUTS: "${{ steps.integrate.outputs.yaml2 }}"
         run: |
             set -x
             printenv

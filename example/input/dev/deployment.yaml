@@ -21,6 +21,8 @@ spec:
         ports:
         - containerPort: 8080
         env:
+        - name: SHOULD_BREAK
+          value: a
         - name: ALT_GREETING
           valueFrom:
             configMapKeyRef:

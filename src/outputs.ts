@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import path from 'path';
-import {createWriteStream, fstat, promises} from 'fs';
+import {createWriteStream, promises} from 'fs';
 import {Logger} from './logger';
 import {Settings} from './setup';
 import {getWorkspaceRoot, resolveEnvVars} from './utils';
@@ -37,13 +37,13 @@ export class VariableOutputAction implements OutputAction {
 
   invoke(yaml: string, errors: string[], settings: Settings, logger: Logger) {
     if (this.outputVariableName) {
-      core.exportVariable(this.outputVariableName, yaml);
+      core.setOutput(this.outputVariableName, yaml);
       if (settings.verbose) {
         logger.log(`Wrote ${yaml.length} chars to ${this.outputVariableName}`);
       }
     }
     if (this.errorsVariableName) {
-      core.exportVariable(this.errorsVariableName, errors);
+      core.setOutput(this.errorsVariableName, errors);
       if (settings.verbose) {
         logger.log(
           `Wrote ${errors.length} errors to ${this.errorsVariableName}`
