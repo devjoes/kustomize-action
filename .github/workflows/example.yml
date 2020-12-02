@@ -50,7 +50,7 @@ jobs:
         uses: ./ #devjoes/kustomize-action@v0.0.2
         with:
           kustomize-path: /tmp/tmp_${GITHUB_RUN_ID}/
-          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"yaml","errorsVariableName":"errors"}]'
+          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"INTEGRATED_YAML","errorsVariableName":"ERRORS"}]'
           extra-resources: './example/output/test.yaml,./example/output/core-infra.yaml'
           verbose: true
           # disable kubeval? maybe remove alpha plugin args
@@ -58,8 +58,8 @@ jobs:
       - name: Commit kustomize output
         if: success() && steps.build_environment.outcome == 'success' && steps.integrate.outcome == 'success'
         env:
-          FINAL_YAML: "a${{ toJson(steps) }}b"
-          FINAL_ERRORS: "a${{ steps.integrate.outputs.errors }}b"
+          YAML: "${{ steps.integrate.outputs.INTEGRATED_YAML }}"
+          FINAL_ERRORS: "a${{ toJson(steps) }}b"
           FINAL_OUTCOME: "${{ steps.integrate.outcome }}"
           OUTPUTS: "${{ steps.integrate.outputs.yaml2 }}"
         run: |
@@ -78,7 +78,8 @@ jobs:
               exit 0
             fi
             git fetch --unshallow
-            git add ./example/output/dev.yaml
+            echo "$YAML" | sha1sum > ./example/output/output.hash
+            git add ./example/output/dev.yaml ./example/output/output.hash
             git commit -m "Updated deployed YAML from $GITHUB_WORKFLOW"
             git push origin HEAD:$GITHUB_HEAD_REF
 
