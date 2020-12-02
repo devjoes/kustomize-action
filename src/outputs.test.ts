@@ -54,7 +54,7 @@ foo:
   });
   describe('VariableOutputAction', () => {
     test('writes output to variable', async () => {
-      const {exportedVars} = mockGitHub();
+      const {outputVars} = mockGitHub();
       const action = new VariableOutputAction();
       action.outputVariableName = 'foo';
       action.errorsVariableName = undefined;
@@ -64,16 +64,16 @@ foo:
         testSettings,
         buildTestLogger()
       );
-      expect(exportedVars).toEqual({foo: testYaml});
+      expect(outputVars).toEqual({foo: testYaml});
     });
     test('writes errors to variable', async () => {
-      const {exportedVars} = mockGitHub();
+      const {outputVars} = mockGitHub();
       const action = new VariableOutputAction();
       action.outputVariableName = 'foo';
       action.errorsVariableName = 'errors';
       const errs = ['bang'];
       await action.invoke(testYaml, errs, testSettings, buildTestLogger());
-      expect(exportedVars['errors']).toEqual(errs);
+      expect(outputVars['errors']).toEqual(errs);
     });
   });
 
@@ -275,11 +275,11 @@ const mockGitHub = () => {
   });
   github.context.ref = 'refs/heads/some-ref';
   github.context.sha = '1234567890123456789012345678901234567890';
-  const exportedVars: any = {};
+  const outputVars: any = {};
   jest
-    .spyOn(core, 'exportVariable')
+    .spyOn(core, 'setOutput')
     .mockImplementation((name: string, val: any) => {
-      exportedVars[name] = val;
+      outputVars[name] = val;
     });
-  return {exportedVars};
+  return {outputVars};
 };
