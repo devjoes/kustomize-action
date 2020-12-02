@@ -48,15 +48,6 @@ export type Settings = {
   extraResources: string[];
   customValidation: {regex: RegExp; expected: boolean; message: string}[];
   requiredBins: string[];
-  //environment: string; //TODO: I think that this has basically been replaced by kustomizePath and outputPath?
-  //token: string;//TODO: Required? Only if running outside of github
-  //sessionSeed: string | undefined; //TODO: Set up seperately in workflow
-  //TODO: Setup seperately in workflow
-  // azure: {
-  //   tenantId: string;
-  //   clientId: string;
-  //   clientSecret: string;
-  // };
 };
 
 export const parseAllowedSecrets = (secretString: string) =>

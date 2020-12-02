@@ -16,10 +16,7 @@ jobs:
       OUTPUT_FILE: "./example/output/dev.yaml"
     steps:
       - name: Setup environment
-        env:
-          INPUT_PATH: ${{ env.INPUT_PATH }}
         run: |
-          printenv
           mkdir -p "/tmp/tmp_${GITHUB_RUN_ID}/"
           echo 'resources: [ main.yaml ]' > "/tmp/tmp_${GITHUB_RUN_ID}/kustomization.yaml"
           export KUSTOMIZE_PLUGIN_HOME=/tmp/kustomize; mkdir -p $KUSTOMIZE_PLUGIN_HOME
@@ -65,7 +62,6 @@ jobs:
         env:
           YAML: "${{ steps.integrate.outputs.INTEGRATED_YAML }}"
         run: |
-            printenv
             git config --global user.name "$GITHUB_WORKFLOW"
             git config --global user.email "$GITHUB_WORKFLOW@github.com"
             git fetch origin $GITHUB_BASE_REF
@@ -79,8 +75,7 @@ jobs:
               exit 0
             fi
             git fetch --unshallow
-            #echo "$YAML" | sha1sum > $(dirname $OUTPUT_FILE)/output.hash
-            git add $OUTPUT_FILE #$(dirname $OUTPUT_FILE)/output.hash
+            git add $OUTPUT_FILE
             git commit -m "Updated deployed YAML from $GITHUB_WORKFLOW"
             git push origin HEAD:$GITHUB_HEAD_REF
 
