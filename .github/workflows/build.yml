@@ -15,8 +15,6 @@ jobs:
       run: |
         set -x
         msg="Commiting dist"
-        git config --global user.name "$GITHUB_ACTOR"
-        git config --global user.email action@github.com
         git add ./dist -f
         if [[ -z $(git status --porcelain ./dist) ]]; then
           echo "No changes."
