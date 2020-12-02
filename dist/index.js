@@ -23026,9 +23026,9 @@ const customValidation = (input, customValidation, logger) => {
     logger === null || logger === void 0 ? void 0 : logger.log(JSON.stringify(customValidation, null, 2));
     return customValidation
         .filter(v => {
-        const m = v.regex.test(input);
-        const fail = m !== v.expected;
-        logger === null || logger === void 0 ? void 0 : logger.log(`${v.regex.source}	:${m ? 'Matched' : 'Not matched'}	${fail ? 'Fail ' : 'Pass'}`);
+        const m = v.regex.exec(input);
+        const fail = !!m !== v.expected;
+        logger === null || logger === void 0 ? void 0 : logger.log(`${v.regex.source}	:${m ? 'Matched' : 'Not matched'}	${fail ? 'Fail ' : 'Pass'} "${m && m}"`);
         return fail;
     })
         .map(v => v.message);
@@ -23358,13 +23358,13 @@ class VariableOutputAction {
     }
     invoke(yaml, errors, settings, logger) {
         if (this.outputVariableName) {
-            core.exportVariable(this.outputVariableName, yaml);
+            core.setOutput(this.outputVariableName, yaml);
             if (settings.verbose) {
                 logger.log(`Wrote ${yaml.length} chars to ${this.outputVariableName}`);
             }
         }
         if (this.errorsVariableName) {
-            core.exportVariable(this.errorsVariableName, errors);
+            core.setOutput(this.errorsVariableName, errors);
             if (settings.verbose) {
                 logger.log(`Wrote ${errors.length} errors to ${this.errorsVariableName}`);
             }
