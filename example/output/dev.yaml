@@ -59,7 +59,7 @@ spec:
             - --enableRiskyFeature=$(ENABLE_RISKY)
           env:
             - name: TEST
-              value: a
+              value: foo
             - name: ALT_GREETING
               valueFrom:
                 configMapKeyRef:
