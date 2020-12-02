@@ -44,7 +44,7 @@ jobs:
         if: success()
         uses: ./ #devjoes/kustomize-action@v0.0.2
         with:
-          kustomize-path: /tmp/tmp_${GITHUB_RUN_ID}/main.yaml
+          kustomize-path: /tmp/tmp_${GITHUB_RUN_ID}/
           output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"yaml","errorsVariableName":"errors"}]'
           extra-resources: './example/output/test.yaml,./example/output/core-infra.yaml'
           verbose: false
