@@ -22,7 +22,7 @@ spec:
         - containerPort: 8080
         env:
         - name: TEST
-          value: a
+          value: foo
         - name: ALT_GREETING
           valueFrom:
             configMapKeyRef:
