@@ -59,7 +59,7 @@ spec:
             - --enableRiskyFeature=$(ENABLE_RISKY)
           env:
             - name: SHOULD_BREAK
-              value: null
+              value: a
             - name: ALT_GREETING
               valueFrom:
                 configMapKeyRef:
