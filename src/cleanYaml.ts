@@ -179,7 +179,7 @@ export const customValidation = (
       logger?.log(
         `${v.regex.source}	:${m ? 'Matched' : 'Not matched'}	${
           fail ? 'Fail ' : 'Pass'
-        } ${m && m![0]}`
+        } "${m && m!}"`
       );
       return fail;
     })
