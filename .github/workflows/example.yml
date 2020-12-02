@@ -10,7 +10,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     env:
       INPUT_PATH: "./example/input/dev"
       OUTPUT_DIR: "./example/output"
@@ -18,6 +17,8 @@ jobs:
       OUTPUT_FILE: "$OUTPUT_DIR/dev.yaml"
     steps:
       - name: Setup environment
+        env:
+          INPUT_PATH: ${{ env.INPUT_PATH }}
         run: |
           printenv
           mkdir -p "/tmp/tmp_${GITHUB_RUN_ID}/"
