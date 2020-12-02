@@ -23567,7 +23567,7 @@ const getSettings = (isAction) => {
     const kustomizePath = getSetting('kustomize-path', 'KUSTOMIZE_PATH', true);
     const outputActions = getSetting('output-actions', 'OUTPUT_ACTIONS', true);
     const extraResources = getSetting('extra-resources', 'EXTRA_RESOURCES');
-    const customValidation = getSetting('validation-regexps', 'VALIDATION_REGEXPS', false);
+    const customValidation = getSetting('custom-validation-rules', 'CUSTOM_VALIDATION_RULES', false);
     const allowedSecrets = getSetting('allowed-secrets', 'ALLOWED_SECRETS');
     const requiredBins = getSetting('required-bins', 'REQUIRED_BINS');
     const verbose = getSetting('verbose', 'VERBOSE');
