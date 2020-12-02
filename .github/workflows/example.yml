@@ -34,21 +34,22 @@ jobs:
       - uses: actions/checkout@v2
         name: Checkout
       - name: build-environment
+        id: build_environment
         uses: ./ #devjoes/kustomize-action@v0.0.2
         with:
           kustomize-path: ./example/input/dev
-          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"yaml","errorsVariableName":"errors"},{"type":"FileOutputAction","createDirIfMissing":true,"fileOpenFlags":"w","dontOutputIfErrored":true,"fileName":"/tmp/tmp_${GITHUB_RUN_ID}/main.yaml"}]'
+          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"YAML","errorsVariableName":"ERRORS"},{"type":"FileOutputAction","createDirIfMissing":true,"fileOpenFlags":"w","dontOutputIfErrored":true,"fileName":"/tmp/tmp_${GITHUB_RUN_ID}/main.yaml"}]'
           verbose: false
-        continue-on-error: true
-      - name: test-alongside other envs
+      - name: test alongside other envs
+        id: integrate
         if: success()
         uses: ./ #devjoes/kustomize-action@v0.0.2
         with:
           kustomize-path: /tmp/tmp_${GITHUB_RUN_ID}/
-          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"yaml","errorsVariableName":"errors"}]'
+          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"INTEGRATE_YAML","errorsVariableName":"INTEGRATE_ERRORS"}]'
           extra-resources: './example/output/test.yaml,./example/output/core-infra.yaml'
           verbose: false
-        continue-on-error: true
+          # disable kubeval? maybe remove alpha plugin args
       - name: Commit kustomize output
         if: success()
         run: |
