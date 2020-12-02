@@ -48,8 +48,8 @@ export type Settings = {
   extraResources: string[];
   customValidation: {regex: RegExp; expected: boolean; message: string}[];
   requiredBins: string[];
-  kustomizeArgs: string
-  validateWithKubeVal:boolean
+  kustomizeArgs: string;
+  validateWithKubeVal:boolean;
 };
 
 export const parseAllowedSecrets = (secretString: string) =>

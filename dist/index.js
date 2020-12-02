@@ -11691,15 +11691,8 @@ module.exports = {
           selector: {
             type: "string",
           },
-          //TODO: Remove and uncomment required - they have fudged the apiVersion :@ https://github.com/Azure/aad-pod-identity/#v160-breaking-change
-          AzureIdentity: {
-            type: "string",
-          },
-          Selector: {
-            type: "string",
-          },
         },
-        //required: ["azureIdentity", "selector"],
+        required: ["azureIdentity", "selector"],
       },
     },
     required: ["apiVersion", "kind", "metadata", "spec"],
