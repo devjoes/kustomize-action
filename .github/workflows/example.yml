@@ -46,12 +46,12 @@ jobs:
             git config --global user.name "$GITHUB_WORKFLOW"
             git config --global user.email "$GITHUB_WORKFLOW@github.com"
             git fetch origin $GITHUB_BASE_REF
-            if [[ -n "$(git status --porcelain $GITHUB_BASE_REF -- ./example/output/dev.yaml)"; then
+            if [[ -n "$(git status --porcelain $GITHUB_BASE_REF -- ./example/output/dev.yaml)" ]]; then
               echo "Aborting - deployed YAML has changed. Please get latest changes from ${GITHUB_BASE_REF}."
               exit 1
             fi
             mv /tmp/${GITHUB_RUN_ID}_output.yaml ./example/output/dev.yaml
-            if [[ -z "$(git status --porcelain $GITHUB_BASE_REF -- ./example/output/dev.yaml)"; then
+            if [[ -z "$(git status --porcelain $GITHUB_BASE_REF -- ./example/output/dev.yaml)" ]]; then
               echo "No changes to commit."
               exit 0
             fi
