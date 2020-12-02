@@ -15,6 +15,7 @@ jobs:
     steps:
       - name: Setup environment. We ideally you would use a private github runner and not have to do this
         run: |
+          mkdir -p "/tmp/tmp_${GITHUB_RUN_ID}/"; echo 'resources: main.yaml' > "/tmp/tmp_${GITHUB_RUN_ID}/kustomization.yaml"
           export KUSTOMIZE_PLUGIN_HOME=/tmp/kustomize; mkdir -p $KUSTOMIZE_PLUGIN_HOME
           printenv
           (command -v kubeval && command -v kustomize && command -v helm) || (
@@ -32,15 +33,24 @@ jobs:
           )
       - uses: actions/checkout@v2
         name: Checkout
-      - name: kustomize-automation
+      - name: build-environment
         uses: ./ #devjoes/kustomize-action@v0.0.2
         with:
           kustomize-path: ./example/input/dev
-          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"yaml","errorsVariableName":"errors"},{"type":"FileOutputAction","createDirIfMissing":true,"fileOpenFlags":"w","dontOutputIfErrored":true,"fileName":"/tmp/${GITHUB_RUN_ID}_output.yaml"}]'
+          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"yaml","errorsVariableName":"errors"},{"type":"FileOutputAction","createDirIfMissing":true,"fileOpenFlags":"w","dontOutputIfErrored":true,"fileName":"/tmp/tmp_${GITHUB_RUN_ID}/main.yaml"}]'
+          verbose: false
+        continue-on-error: true
+      - name: test-alongside other envs
+        if: success()
+        uses: ./ #devjoes/kustomize-action@v0.0.2
+        with:
+          kustomize-path: /tmp/tmp_${GITHUB_RUN_ID}/main.yaml
+          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"yaml","errorsVariableName":"errors"}]'
           extra-resources: './example/output/test.yaml,./example/output/core-infra.yaml'
           verbose: false
         continue-on-error: true
       - name: Commit kustomize output
+        if: success()
         run: |
             printenv
             git config --global user.name "$GITHUB_WORKFLOW"
@@ -50,7 +60,7 @@ jobs:
               echo "Aborting - deployed YAML has changed. Please get latest changes from ${GITHUB_BASE_REF}."
               exit 1
             fi
-            mv /tmp/${GITHUB_RUN_ID}_output.yaml ./example/output/dev.yaml
+            mv /tmp/tmp_${GITHUB_RUN_ID}/main.yaml ./example/output/dev.yaml
             if [[ -z "$(git status --porcelain $GITHUB_BASE_REF -- ./example/output/dev.yaml)" ]]; then
               echo "No changes to commit."
               exit 0
