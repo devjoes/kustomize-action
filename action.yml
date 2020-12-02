@@ -29,6 +29,14 @@ inputs:
     description: "Output detailed logging"
     required: false
     default: false
+  validate-with-kubeval:
+    description: "Validates the YAML against schemas with kubeval"
+    required: false
+    default: true
+  kustomize-args:
+    description: "Arguments to run kustomize with"
+    required: false
+    default: "--enable_alpha_plugins"
 outputs:
   yaml:
     description: 'Generated YAML (if VariableOutputAction.outputVariableName is set)'

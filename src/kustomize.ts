@@ -8,16 +8,13 @@ import {Logger} from './logger';
 const runKustomize = async (
   rootPath: string,
   logger: Logger,
-  verbose: boolean,
+  kustomizeArgs: string,
   binPath?: string
 ) =>
   new Promise<{stdOut: string; stdErr: string}>((res, rej) => {
-    const args = ['build', rootPath, '--enable_alpha_plugins'];
+    const args = ['build', rootPath, ...kustomizeArgs.split(/\ +/g)];
     logger.log('Running: ' + [binPath || 'kustomize', ...args].join(' '));
     execFile(binPath || 'kustomize', args, (err, stdOut, stdErr) => {
-      // if (verbose) {
-      //   logger.log(stdOut);
-      // }
       if (stdErr && stdErr.length) {
         logger.error(stdErr);
       }
@@ -88,14 +85,14 @@ export default async (
   path: string,
   extraResources: string[] = [],
   logger: Logger,
-  verbose: boolean,
+  kustomizeArgs: string,
   binPath?: string
 ): Promise<YAML.Document.Parsed[]> => {
   const {dir: tmpPath, cleanUp} = await prepDirectory(path, extraResources);
   const {stdOut, stdErr} = await runKustomize(
     tmpPath,
     logger,
-    verbose,
+    kustomizeArgs,
     binPath
   );
   if (stdErr != '') {

@@ -2,8 +2,6 @@ on:
   push:
     branches:
     - master
-    # TODO: remove
-    - re-write
     
 jobs:
   build:
@@ -12,8 +10,6 @@ jobs:
     - uses: actions/checkout@master
     - run: npm install
     - run: npm run all
-      env:
-        KUSTOMIZE_PLUGIN_HOME: /tmp/kustomize
     - run: npm run package
     - name: Commit dist
       run: |
@@ -27,8 +23,5 @@ jobs:
           exit 0
         fi
         git fetch --unshallow
-        if [[ "$(git log -n 1 | tail -n 1)" =~ "$msg" ]]; then
-          exit 0 # this shouldn't happen - but prevent it recursively commiting forever
-        fi
         git commit -m "$msg"
         git push origin HEAD:$GITHUB_REF

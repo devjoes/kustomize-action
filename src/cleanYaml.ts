@@ -106,10 +106,9 @@ export const removeKustomizeValues = (
     return !toRemove;
   });
 
-//TODO: JS has sets
 const disjunctiveIntersectSecrets = (
-  x: {namespace: string; name: string}[],
-  y: {namespace: string; name: string}[]
+  x: SecretMeta[],
+  y: SecretMeta[]
 ) =>
   x.filter(
     s => !!!y.find(a => a.namespace === s.namespace && a.name === s.name)
@@ -117,7 +116,7 @@ const disjunctiveIntersectSecrets = (
 
 export const checkSecrets = (
   docs: YAML.Document[],
-  allowedSecrets: {namespace: string; name: string}[],
+  allowedSecrets: SecretMeta[],
   logger: Logger | undefined
 ) => {
   const secrets = docs
@@ -134,12 +133,12 @@ export const checkSecrets = (
   );
   logger?.log(
     "Didn't find allowed secrets: " +
-      disjunctiveIntersectSecrets(allowedSecrets, secrets)
+      disjunctiveIntersectSecrets((allowedSecrets), (secrets))
         .map(s => s.namespace + '/' + s.name)
         .join(', ')
   );
 
-  const invalidSecrets = disjunctiveIntersectSecrets(secrets, allowedSecrets);
+  const invalidSecrets = disjunctiveIntersectSecrets((secrets), (allowedSecrets));
   if (invalidSecrets.length > 0) {
     throw new Error(
       `Invalid secrets: ${invalidSecrets
@@ -185,3 +184,8 @@ export const customValidation = (
     })
     .map(v => v.message);
 };
+
+type SecretMeta = {
+  namespace: string;
+  name: string;
+}

@@ -12,7 +12,7 @@ import {
   FileOutputAction,
   parseActions
 } from './outputs';
-import {Settings} from './setup';
+import {defaultKustomizeArgs, Settings} from './setup';
 import { mockedCwd } from './utils';
 
 describe('output actions', () => {
@@ -23,7 +23,9 @@ describe('output actions', () => {
     outputActions: [],
     extraResources: [],
     customValidation: [],
-    requiredBins: []
+    requiredBins: [],
+    kustomizeArgs:defaultKustomizeArgs,
+    validateWithKubeVal:true
   };
   const testYaml = `
 foo: bar

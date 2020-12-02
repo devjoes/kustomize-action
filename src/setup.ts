@@ -1,7 +1,7 @@
 import {getBinPath, getWorkspaceRoot, resolveEnvVars} from './utils';
 import * as core from '@actions/core';
 import dotenv from 'dotenv';
-import fs, { PathLike } from 'fs';
+import fs from 'fs';
 import path from 'path';
 import {OutputAction, parseActions} from './outputs';
 import {Logger} from './logger';
@@ -48,12 +48,14 @@ export type Settings = {
   extraResources: string[];
   customValidation: {regex: RegExp; expected: boolean; message: string}[];
   requiredBins: string[];
+  kustomizeArgs: string;
+  validateWithKubeVal:boolean;
 };
 
 export const parseAllowedSecrets = (secretString: string) =>
   secretString
     .split(/,/g)
-    .map(s => s.trim())
+    .map(s => s.trim().toLowerCase())
     .filter(i => i.indexOf('/') > -1)
     .map(i => ({namespace: i.split(/\//)[0], name: i.split(/\//)[1]}));
 
@@ -119,6 +121,8 @@ export const getSettings = (isAction: boolean): Settings => {
   const allowedSecrets = getSetting('allowed-secrets', 'ALLOWED_SECRETS');
   const requiredBins = getSetting('required-bins', 'REQUIRED_BINS');
   const verbose = getSetting('verbose', 'VERBOSE');
+  const validateWithKubeVal = getSetting('validate-with-kubeval','VALIDATE_WITH_KUBEVAL');
+  const kustomizeArgs = getSetting('kustomize-args','KUSTOMIZE_ARGS');
 
   const workspaceDir = getWorkspaceRoot();
   const getPath = (p: string) =>
@@ -149,7 +153,9 @@ export const getSettings = (isAction: boolean): Settings => {
       ? resolveEnvVars(requiredBins)
           .split(/,/g)
           .map(s => s.trim())
-      : ['kustomize', 'kubeval', 'helm']
+      : ['kustomize', 'kubeval', 'helm'],
+      kustomizeArgs: resolveEnvVars(kustomizeArgs|| defaultKustomizeArgs),
+      validateWithKubeVal: resolveEnvVars(validateWithKubeVal || '').toLowerCase() === 'true',
   };
 };
 
@@ -174,3 +180,4 @@ export const validateSettings = (settings: Settings) =>
     ),
     ...(settings.extraResources || []).map(statFile)
   ]);
+export const defaultKustomizeArgs="--enable_alpha_plugins";
