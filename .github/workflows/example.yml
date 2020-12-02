@@ -53,10 +53,6 @@ jobs:
         if: success()
         run: |
             set -x
-            ls -l /tmp/tmp_${GITHUB_RUN_ID}/
-            cat /tmp/tmp_${GITHUB_RUN_ID}/kustomization.yaml
-            ls -l /tmp/tmp-*/
-            cat /tmp/tmp-*/kustomization.yaml
             printenv
             git config --global user.name "$GITHUB_WORKFLOW"
             git config --global user.email "$GITHUB_WORKFLOW@github.com"
