@@ -40,7 +40,7 @@ jobs:
         uses: ./ #devjoes/kustomize-action@v0.0.2
         with:
           kustomize-path: ./example/input/dev
-          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"YAML","errorsVariableName":"ERRORS"},{"type":"FileOutputAction","createDirIfMissing":true,"fileOpenFlags":"w","dontOutputIfErrored":true,"fileName":"/tmp/tmp_${GITHUB_RUN_ID}/main.yaml"}]'
+          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"YAML","errorsVariableName":undefined},{"type":"FileOutputAction","createDirIfMissing":true,"fileOpenFlags":"w","dontOutputIfErrored":true,"fileName":"/tmp/tmp_${GITHUB_RUN_ID}/main.yaml"}]'
           verbose: false
         continue-on-error: true
       - name: test alongside other envs
@@ -49,18 +49,17 @@ jobs:
         uses: ./ #devjoes/kustomize-action@v0.0.2
         with:
           kustomize-path: /tmp/tmp_${GITHUB_RUN_ID}/
-          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"yaml2","errorsVariableName":"errors"}]'
+          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"yaml","errorsVariableName":"errors"}]'
           extra-resources: './example/output/test.yaml,./example/output/core-infra.yaml'
           custom-validation-rules: "ERROR Found \"kind: azuresecrets\"|false|/kind:\\s*azuresecrets/i\nERROR Found \"kind: secretsealer\"|false|/kind:\\s*secretsealer/i\nERROR Found $(foo.bar) - looks like unreplaced kustomize verRef. If not then remove the .|false|/\\$\\([^\\)\\s]+\\.[^\\)\\s]+\\)/i"
           verbose: false
           # disable kubeval? maybe remove alpha plugin args
         continue-on-error: true
-        outputs:
-          yaml2:
       - name: Commit kustomize output
         if: success() && steps.build_environment.outcome == 'success' && steps.integrate.outcome == 'success'
         env:
           FINAL_YAML: "a${{ steps.integrate.outputs.yaml }}b"
+          FINAL_ERRORS: "a${{ steps.integrate.outputs.errors }}b"
           FINAL_OUTCOME: "${{ steps.integrate.outcome }}"
           OUTPUTS: "${{ steps.integrate.outputs.yaml2 }}"
         run: |
