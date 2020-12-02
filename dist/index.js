@@ -22983,7 +22983,6 @@ const removeKustomizeValues = (docs, logger) => docs.filter(d => {
     return !toRemove;
 });
 exports.removeKustomizeValues = removeKustomizeValues;
-//TODO: JS has sets
 const disjunctiveIntersectSecrets = (x, y) => x.filter(s => !!!y.find(a => a.namespace === s.namespace && a.name === s.name));
 const checkSecrets = (docs, allowedSecrets, logger) => {
     const secrets = docs
@@ -23122,7 +23121,7 @@ const output = (logger, verbose, msg) => {
 };
 const getYaml = (settings, logger) => __awaiter(void 0, void 0, void 0, function* () {
     output(logger, settings.verbose, 'Running kustomize');
-    const resources = yield kustomize_1.default(settings.kustomizePath, settings.extraResources, logger, settings.verbose);
+    const resources = yield kustomize_1.default(settings.kustomizePath, settings.extraResources, logger, settings.kustomizeArgs);
     output(logger, settings.verbose, 'Removing superfluous kustomize resources');
     const docs = cleanYaml_1.removeKustomizeValues(resources, settings.verbose ? logger : undefined);
     output(logger, settings.verbose, 'Cleaning up YAML');
@@ -23138,8 +23137,11 @@ const getYaml = (settings, logger) => __awaiter(void 0, void 0, void 0, function
     output(logger, settings.verbose, 'Checking for unencrypted secrets');
     cleanYaml_1.checkSecrets(cleanedDocs, settings.allowedSecrets, logger);
     const yaml = cleanedDocs.join(''); // The docs retain their --- when parsed
-    output(logger, settings.verbose, 'Validating YAML');
-    let errors = yield validation_1.default(yaml, logger);
+    let errors = [];
+    if (settings.validateWithKubeVal) {
+        output(logger, settings.verbose, 'Validating YAML');
+        errors = yield validation_1.default(yaml, logger);
+    }
     if (settings.customValidation.length) {
         output(logger, settings.verbose, 'Running customValidation tests');
         errors = errors.concat(cleanYaml_1.customValidation(yaml, settings.customValidation, settings.verbose ? logger : undefined));
@@ -23174,14 +23176,11 @@ const fs_1 = __importDefault(__webpack_require__(5747));
 const path_1 = __importDefault(__webpack_require__(5622));
 const tmp_1 = __importDefault(__webpack_require__(8517));
 const yaml_1 = __importDefault(__webpack_require__(3552));
-const runKustomize = (rootPath, logger, verbose, binPath) => __awaiter(void 0, void 0, void 0, function* () {
+const runKustomize = (rootPath, logger, kustomizeArgs, binPath) => __awaiter(void 0, void 0, void 0, function* () {
     return new Promise((res, rej) => {
-        const args = ['build', rootPath, '--enable_alpha_plugins'];
+        const args = ['build', rootPath, ...kustomizeArgs.split(/\ +/g)];
         logger.log('Running: ' + [binPath || 'kustomize', ...args].join(' '));
         child_process_1.execFile(binPath || 'kustomize', args, (err, stdOut, stdErr) => {
-            // if (verbose) {
-            //   logger.log(stdOut);
-            // }
             if (stdErr && stdErr.length) {
                 logger.error(stdErr);
             }
@@ -23222,9 +23221,9 @@ bases:
 resources:
 ${extraResources.map(p => '- ' + path_1.default.basename(p)).join('\n')}
 `);
-exports.default = (path, extraResources = [], logger, verbose, binPath) => __awaiter(void 0, void 0, void 0, function* () {
+exports.default = (path, extraResources = [], logger, kustomizeArgs, binPath) => __awaiter(void 0, void 0, void 0, function* () {
     const { dir: tmpPath, cleanUp } = yield prepDirectory(path, extraResources);
-    const { stdOut, stdErr } = yield runKustomize(tmpPath, logger, verbose, binPath);
+    const { stdOut, stdErr } = yield runKustomize(tmpPath, logger, kustomizeArgs, binPath);
     if (stdErr != '') {
         throw new Error(stdErr);
     }
@@ -23475,7 +23474,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.validateSettings = exports.getSettings = exports.parseCustomValidation = exports.parseAllowedSecrets = exports.createKustomizeFolder = exports.validateEnvironment = void 0;
+exports.defaultKustomizeArgs = exports.validateSettings = exports.getSettings = exports.parseCustomValidation = exports.parseAllowedSecrets = exports.createKustomizeFolder = exports.validateEnvironment = void 0;
 const utils_1 = __webpack_require__(1314);
 const core = __importStar(__webpack_require__(2186));
 const dotenv_1 = __importDefault(__webpack_require__(2437));
@@ -23514,7 +23513,7 @@ const createKustomizeFolder = () => new Promise(r => {
 exports.createKustomizeFolder = createKustomizeFolder;
 const parseAllowedSecrets = (secretString) => secretString
     .split(/,/g)
-    .map(s => s.trim())
+    .map(s => s.trim().toLowerCase())
     .filter(i => i.indexOf('/') > -1)
     .map(i => ({ namespace: i.split(/\//)[0], name: i.split(/\//)[1] }));
 exports.parseAllowedSecrets = parseAllowedSecrets;
@@ -23566,6 +23565,8 @@ const getSettings = (isAction) => {
     const allowedSecrets = getSetting('allowed-secrets', 'ALLOWED_SECRETS');
     const requiredBins = getSetting('required-bins', 'REQUIRED_BINS');
     const verbose = getSetting('verbose', 'VERBOSE');
+    const validateWithKubeVal = getSetting('validate-with-kubeval', 'VALIDATE_WITH_KUBEVAL');
+    const kustomizeArgs = getSetting('kustomize-args', 'KUSTOMIZE_ARGS');
     const workspaceDir = utils_1.getWorkspaceRoot();
     const getPath = (p) => path_1.default.isAbsolute(p) ? p : path_1.default.join(workspaceDir, p);
     const defaultActions = `[
@@ -23593,7 +23594,9 @@ const getSettings = (isAction) => {
             ? utils_1.resolveEnvVars(requiredBins)
                 .split(/,/g)
                 .map(s => s.trim())
-            : ['kustomize', 'kubeval', 'helm']
+            : ['kustomize', 'kubeval', 'helm'],
+        kustomizeArgs: utils_1.resolveEnvVars(kustomizeArgs || exports.defaultKustomizeArgs),
+        validateWithKubeVal: utils_1.resolveEnvVars(validateWithKubeVal || '').toLowerCase() === 'true'
     };
 };
 exports.getSettings = getSettings;
@@ -23616,6 +23619,7 @@ const validateSettings = (settings) => Promise.all([
     ...(settings.extraResources || []).map(statFile)
 ]);
 exports.validateSettings = validateSettings;
+exports.defaultKustomizeArgs = '--enable_alpha_plugins';
 
 
 /***/ }),
