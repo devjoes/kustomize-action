@@ -49,7 +49,7 @@ jobs:
         uses: ./ #devjoes/kustomize-action@v0.0.2
         with:
           kustomize-path: /tmp/tmp_${GITHUB_RUN_ID}/
-          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"INTEGRATE_YAML","errorsVariableName":"INTEGRATE_ERRORS"}]'
+          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"YAML","errorsVariableName":"ERRORS"}]'
           extra-resources: './example/output/test.yaml,./example/output/core-infra.yaml'
           verbose: false
           # disable kubeval? maybe remove alpha plugin args
@@ -57,7 +57,7 @@ jobs:
       - name: Commit kustomize output
         if: success() && steps.build_environment.outcome == 'success' && steps.integrate.outcome == 'success'
         env:
-          FINAL_YAML: "${{ steps.integrate.outputs.yaml }}"
+          FINAL_YAML: "${{ steps.integrate.outputs.YAML }}"
         run: |
             set -x
             printenv
