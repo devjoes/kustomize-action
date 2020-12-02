@@ -64,8 +64,8 @@ jobs:
         env:
           YAML: "${{ steps.integrate.outputs.INTEGRATED_YAML }}"
         run: |
-            git config --global user.name "$GITHUB_WORKFLOW"
-            git config --global user.email "$GITHUB_WORKFLOW@github.com"
+            git config --global user.name "$GITHUB_ACTOR"
+            git config --global user.email action@github.com
             git fetch origin $GITHUB_BASE_REF
             if [[ -n "$(git status --porcelain $GITHUB_BASE_REF -- $OUTPUT_FILE)" ]]; then
               echo "Aborting - deployed YAML has changed. Please get latest changes from ${GITHUB_BASE_REF}."
