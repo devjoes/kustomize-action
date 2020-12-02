@@ -55,7 +55,9 @@ jobs:
           output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"INTEGRATED_YAML","errorsVariableName":"ERRORS"}]'
           extra-resources: $EXTRA_RESOURCES
           verbose: true
-          # disable kubeval? maybe remove alpha plugin args
+          # Everything should have been validated by this point - these are not needed and disabled for performance
+          validate-with-kubeval: false
+          kustomize-args: ""
         continue-on-error: true
       - name: Commit kustomize output
         if: success() && steps.build_environment.outcome == 'success' && steps.integrate.outcome == 'success'

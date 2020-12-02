@@ -6,7 +6,7 @@ import YAML from 'yaml';
 import kustomize from './kustomize';
 import {getBinPath} from './utils';
 import {buildTestLogger, Logger} from './logger';
-import {createKustomizeFolder} from './setup';
+import {createKustomizeFolder, defaultKustomizeArgs} from './setup';
 
 describe('kustomize', () => {
   let tmpDir: string, kPath: string | undefined;
@@ -41,26 +41,26 @@ describe('kustomize', () => {
       expect(p).toBeDefined();
       expect(loggerErrors).not.toHaveLength(0);
     };
-    await kustomize(tmpDir, [], logger, true, 'dukhsdkjsdhkj').catch(
+    await kustomize(tmpDir, [], logger, defaultKustomizeArgs, 'dukhsdkjsdhkj').catch(
       handleError
     );
-    await kustomize('this is invalid', [], logger, true, kPath).catch(
+    await kustomize('this is invalid', [], logger, defaultKustomizeArgs, kPath).catch(
       handleError
     );
     await kustomize(
       cleanUpGetName(tmp.dirSync({unsafeCleanup: true})),
       [],
       logger,
-      true,
+      defaultKustomizeArgs,
       kPath
     ).catch(handleError);
-    await kustomize(tmpDir, ['/IDontExist'], logger, true, kPath).catch(
+    await kustomize(tmpDir, ['/IDontExist'], logger, defaultKustomizeArgs, kPath).catch(
       handleError
     );
     expect.assertions(8);
   });
   test('outputs yaml', async () => {
-    const output = await kustomize(tmpDir, [], logger, true, kPath);
+    const output = await kustomize(tmpDir, [], logger, defaultKustomizeArgs, kPath);
     expect(output.map(d => d.toJSON())).toEqual([
       YAML.parseDocument(getNsYaml('a')).toJSON(),
       YAML.parseDocument(getNsYaml('b')).toJSON()
@@ -74,7 +74,7 @@ describe('kustomize', () => {
       tmpDir,
       [extraResourcePath],
       logger,
-      true,
+      defaultKustomizeArgs,
       kPath
     );
     expect(output.map(d => d.toJSON())).toEqual([
