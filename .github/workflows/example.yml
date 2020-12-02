@@ -53,8 +53,8 @@ jobs:
         if: success()
         run: |
             set -x
-            ls /tmp/tmp_${GITHUB_RUN_ID}/
-            ls /tmp/tmp-*/
+            ls -l /tmp/tmp_${GITHUB_RUN_ID}/
+            ls -l /tmp/tmp-*/
             tree /tmp
             printenv
             git config --global user.name "$GITHUB_WORKFLOW"
