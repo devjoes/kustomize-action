@@ -22,7 +22,7 @@ spec:
         - containerPort: 8080
         env:
         - name: SHOULD_BREAK
-          value: 
+          value: \$(Values\.foo)
         - name: ALT_GREETING
           valueFrom:
             configMapKeyRef:
