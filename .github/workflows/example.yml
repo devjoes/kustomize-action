@@ -40,7 +40,7 @@ jobs:
         uses: ./ #devjoes/kustomize-action@v0.0.2
         with:
           kustomize-path: ./example/input/dev
-          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"YAML"},{"type":"FileOutputAction","createDirIfMissing":true,"fileOpenFlags":"w","dontOutputIfErrored":true,"fileName":"/tmp/tmp_${GITHUB_RUN_ID}/main.yaml"}]'
+          output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"yaml"},{"type":"FileOutputAction","createDirIfMissing":true,"fileOpenFlags":"w","dontOutputIfErrored":true,"fileName":"/tmp/tmp_${GITHUB_RUN_ID}/main.yaml"}]'
           custom-validation-rules: "ERROR Found \"kind: azuresecrets\"|false|/kind:\\s*azuresecrets/i\nERROR Found \"kind: secretsealer\"|false|/kind:\\s*secretsealer/i\nERROR Found $(foo.bar) - looks like unreplaced kustomize verRef. If not then remove the .|false|/\\$\\([^\\)\\s]+\\.[^\\)\\s]+\\)/i"
           verbose: true
         continue-on-error: true
