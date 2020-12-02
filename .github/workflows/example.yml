@@ -40,6 +40,7 @@ jobs:
           kustomize-path: ./example/input/dev
           output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"YAML","errorsVariableName":"ERRORS"},{"type":"FileOutputAction","createDirIfMissing":true,"fileOpenFlags":"w","dontOutputIfErrored":true,"fileName":"/tmp/tmp_${GITHUB_RUN_ID}/main.yaml"}]'
           verbose: false
+        continue-on-error: true
       - name: test alongside other envs
         id: integrate
         if: success()
@@ -50,6 +51,7 @@ jobs:
           extra-resources: './example/output/test.yaml,./example/output/core-infra.yaml'
           verbose: false
           # disable kubeval? maybe remove alpha plugin args
+        continue-on-error: true
       - name: Commit kustomize output
         if: success()
         run: |
