@@ -23113,7 +23113,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         console.log(error);
         logger.error(error.message);
         if (isAction) {
-            core.setFailed(error.message);
+            core.setFailed(error.message || 'Failed');
         }
         else {
             process.exit(1);

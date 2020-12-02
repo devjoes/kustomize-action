@@ -55,7 +55,7 @@ const main = async () => {
     console.log(error);
     logger.error(error.message);
     if (isAction) {
-      core.setFailed(error.message);
+      core.setFailed(error.message || 'Failed');
     } else {
       process.exit(1);
     }
