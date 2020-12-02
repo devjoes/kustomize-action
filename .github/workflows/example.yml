@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Setup environment. We ideally you would use a private github runner and not have to do this
         run: |
-          mkdir -p "/tmp/tmp_${GITHUB_RUN_ID}/"; echo 'resources: main.yaml' > "/tmp/tmp_${GITHUB_RUN_ID}/kustomization.yaml"
+          mkdir -p "/tmp/tmp_${GITHUB_RUN_ID}/"; echo 'resources: [main.yaml]' > "/tmp/tmp_${GITHUB_RUN_ID}/kustomization.yaml"
           export KUSTOMIZE_PLUGIN_HOME=/tmp/kustomize; mkdir -p $KUSTOMIZE_PLUGIN_HOME
           printenv
           (command -v kubeval && command -v kustomize && command -v helm) || (
