@@ -59,7 +59,7 @@ jobs:
         env:
           FINAL_YAML: "${{ steps.integrate.outputs.yaml }}"
           FINAL_OUTCOME: "${{ steps.integrate.outcome }}"
-          OUTPUTS: "${{ steps.integrate.outputs }}"
+          OUTPUTS: "${{ steps.integrate.outputs.YAML }}"
         run: |
             set -x
             printenv
