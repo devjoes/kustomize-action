@@ -10,10 +10,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    env:
+      INPUT_PATH: "./example/input/dev"
+      EXTRA_RESOURCES: "./example/output/test.yaml,./example/output/core-infra.yaml"
+      OUTPUT_FILE: "./example/output/dev.yaml"
     steps:
-      - name: Setup environment. We ideally you would use a private github runner and not have to do this
+      - name: Setup environment
         run: |
           mkdir -p "/tmp/tmp_${GITHUB_RUN_ID}/"
           echo 'resources: [ main.yaml ]' > "/tmp/tmp_${GITHUB_RUN_ID}/kustomization.yaml"
@@ -39,7 +41,7 @@ jobs:
         id: build_environment
         uses: ./ #devjoes/kustomize-action@v0.0.2
         with:
-          kustomize-path: ./example/input/dev
+          kustomize-path: $INPUT_PATH
           output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"yaml"},{"type":"FileOutputAction","createDirIfMissing":true,"fileOpenFlags":"w","dontOutputIfErrored":true,"fileName":"/tmp/tmp_${GITHUB_RUN_ID}/main.yaml"}]'
           custom-validation-rules: "ERROR Found \"kind: azuresecrets\"|false|/kind:\\s*azuresecrets/i\nERROR Found \"kind: secretsealer\"|false|/kind:\\s*secretsealer/i\nERROR Found $(foo.bar) - looks like unreplaced kustomize verRef. If not then remove the .|false|/\\$\\([^\\)\\s]+\\.[^\\)\\s]+\\)/i"
           verbose: true
@@ -51,7 +53,7 @@ jobs:
         with:
           kustomize-path: /tmp/tmp_${GITHUB_RUN_ID}/
           output-actions: '[{"type":"LoggerOutputAction","logErrors":true,"logYaml":false},{"type":"VariableOutputAction","outputVariableName":"INTEGRATED_YAML","errorsVariableName":"ERRORS"}]'
-          extra-resources: './example/output/test.yaml,./example/output/core-infra.yaml'
+          extra-resources: $EXTRA_RESOURCES
           verbose: true
           # disable kubeval? maybe remove alpha plugin args
         continue-on-error: true
@@ -59,27 +61,21 @@ jobs:
         if: success() && steps.build_environment.outcome == 'success' && steps.integrate.outcome == 'success'
         env:
           YAML: "${{ steps.integrate.outputs.INTEGRATED_YAML }}"
-          FINAL_ERRORS: "a${{ toJson(steps) }}b"
-          FINAL_OUTCOME: "${{ steps.integrate.outcome }}"
-          OUTPUTS: "${{ steps.integrate.outputs.yaml2 }}"
         run: |
-            set -x
-            printenv
             git config --global user.name "$GITHUB_WORKFLOW"
             git config --global user.email "$GITHUB_WORKFLOW@github.com"
             git fetch origin $GITHUB_BASE_REF
-            if [[ -n "$(git status --porcelain $GITHUB_BASE_REF -- ./example/output/dev.yaml)" ]]; then
+            if [[ -n "$(git status --porcelain $GITHUB_BASE_REF -- $OUTPUT_FILE)" ]]; then
               echo "Aborting - deployed YAML has changed. Please get latest changes from ${GITHUB_BASE_REF}."
               exit 1
             fi
-            mv /tmp/tmp_${GITHUB_RUN_ID}/main.yaml ./example/output/dev.yaml
-            if [[ -z "$(git status --porcelain $GITHUB_BASE_REF -- ./example/output/dev.yaml)" ]]; then
+            mv /tmp/tmp_${GITHUB_RUN_ID}/main.yaml $OUTPUT_FILE
+            if [[ -z "$(git status --porcelain $GITHUB_BASE_REF -- $OUTPUT_FILE)" ]]; then
               echo "No changes to commit."
               exit 0
             fi
             git fetch --unshallow
-            echo "$YAML" | sha1sum > ./example/output/output.hash
-            git add ./example/output/dev.yaml ./example/output/output.hash
+            git add $OUTPUT_FILE
             git commit -m "Updated deployed YAML from $GITHUB_WORKFLOW"
             git push origin HEAD:$GITHUB_HEAD_REF
 
