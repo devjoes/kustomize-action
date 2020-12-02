@@ -58,7 +58,7 @@ jobs:
       - name: Commit kustomize output
         if: success() && steps.build_environment.outcome == 'success' && steps.integrate.outcome == 'success'
         env:
-          FINAL_YAML: "a${{ toJson(steps.integrate.outputs) }}b"
+          FINAL_YAML: "a${{ toJson(steps) }}b"
           FINAL_ERRORS: "a${{ steps.integrate.outputs.errors }}b"
           FINAL_OUTCOME: "${{ steps.integrate.outcome }}"
           OUTPUTS: "${{ steps.integrate.outputs.yaml2 }}"
