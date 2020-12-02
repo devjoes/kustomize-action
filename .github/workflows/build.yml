@@ -13,7 +13,8 @@ jobs:
     - run: npm run package
     - name: Commit dist
       run: |
-        set -x
+        git config --global user.name "$GITHUB_ACTOR"
+        git config --global user.email action@github.com
         msg="Commiting dist"
         git add ./dist -f
         if [[ -z $(git status --porcelain ./dist) ]]; then
