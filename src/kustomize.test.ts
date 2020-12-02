@@ -41,12 +41,20 @@ describe('kustomize', () => {
       expect(p).toBeDefined();
       expect(loggerErrors).not.toHaveLength(0);
     };
-    await kustomize(tmpDir, [], logger, defaultKustomizeArgs, 'dukhsdkjsdhkj').catch(
-      handleError
-    );
-    await kustomize('this is invalid', [], logger, defaultKustomizeArgs, kPath).catch(
-      handleError
-    );
+    await kustomize(
+      tmpDir,
+      [],
+      logger,
+      defaultKustomizeArgs,
+      'dukhsdkjsdhkj'
+    ).catch(handleError);
+    await kustomize(
+      'this is invalid',
+      [],
+      logger,
+      defaultKustomizeArgs,
+      kPath
+    ).catch(handleError);
     await kustomize(
       cleanUpGetName(tmp.dirSync({unsafeCleanup: true})),
       [],
@@ -54,13 +62,23 @@ describe('kustomize', () => {
       defaultKustomizeArgs,
       kPath
     ).catch(handleError);
-    await kustomize(tmpDir, ['/IDontExist'], logger, defaultKustomizeArgs, kPath).catch(
-      handleError
-    );
+    await kustomize(
+      tmpDir,
+      ['/IDontExist'],
+      logger,
+      defaultKustomizeArgs,
+      kPath
+    ).catch(handleError);
     expect.assertions(8);
   });
   test('outputs yaml', async () => {
-    const output = await kustomize(tmpDir, [], logger, defaultKustomizeArgs, kPath);
+    const output = await kustomize(
+      tmpDir,
+      [],
+      logger,
+      defaultKustomizeArgs,
+      kPath
+    );
     expect(output.map(d => d.toJSON())).toEqual([
       YAML.parseDocument(getNsYaml('a')).toJSON(),
       YAML.parseDocument(getNsYaml('b')).toJSON()

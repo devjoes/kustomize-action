@@ -51,9 +51,8 @@ export const getWorkspaceRoot = () => {
 };
 
 let curDirName = __dirname;
-export const mockedCwd = (newDir? : string) :string=> 
-{
-  if (newDir){
+export const mockedCwd = (newDir?: string): string => {
+  if (newDir) {
     curDirName = newDir;
   }
   return curDirName;
@@ -89,7 +88,10 @@ export const makeBox = (
   const text = lines.map(
     line =>
       v.padEnd(xPadding, ' ') +
-      (''.padEnd((Math.floor(width - line.length) / 2))+line).padEnd(width, ' ') +
+      (''.padEnd(Math.floor(width - line.length) / 2) + line).padEnd(
+        width,
+        ' '
+      ) +
       ''.padEnd(xPadding, ' ') +
       v
   );

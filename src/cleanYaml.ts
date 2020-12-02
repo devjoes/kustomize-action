@@ -106,10 +106,7 @@ export const removeKustomizeValues = (
     return !toRemove;
   });
 
-const disjunctiveIntersectSecrets = (
-  x: SecretMeta[],
-  y: SecretMeta[]
-) =>
+const disjunctiveIntersectSecrets = (x: SecretMeta[], y: SecretMeta[]) =>
   x.filter(
     s => !!!y.find(a => a.namespace === s.namespace && a.name === s.name)
   );
@@ -133,12 +130,12 @@ export const checkSecrets = (
   );
   logger?.log(
     "Didn't find allowed secrets: " +
-      disjunctiveIntersectSecrets((allowedSecrets), (secrets))
+      disjunctiveIntersectSecrets(allowedSecrets, secrets)
         .map(s => s.namespace + '/' + s.name)
         .join(', ')
   );
 
-  const invalidSecrets = disjunctiveIntersectSecrets((secrets), (allowedSecrets));
+  const invalidSecrets = disjunctiveIntersectSecrets(secrets, allowedSecrets);
   if (invalidSecrets.length > 0) {
     throw new Error(
       `Invalid secrets: ${invalidSecrets
@@ -188,4 +185,4 @@ export const customValidation = (
 type SecretMeta = {
   namespace: string;
   name: string;
-}
+};

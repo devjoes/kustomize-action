@@ -102,10 +102,10 @@ const getYaml = async (settings: Settings, logger: Logger) => {
   output(logger, settings.verbose, 'Checking for unencrypted secrets');
   checkSecrets(cleanedDocs, settings.allowedSecrets, logger);
   const yaml = cleanedDocs.join(''); // The docs retain their --- when parsed
-  let errors = [] as (string|undefined)[];
-  if (settings.validateWithKubeVal){
-  output(logger, settings.verbose, 'Validating YAML');
-  errors = await validateYaml(yaml, logger);
+  let errors = [] as (string | undefined)[];
+  if (settings.validateWithKubeVal) {
+    output(logger, settings.verbose, 'Validating YAML');
+    errors = await validateYaml(yaml, logger);
   }
   if (settings.customValidation.length) {
     output(logger, settings.verbose, 'Running customValidation tests');

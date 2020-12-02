@@ -67,7 +67,7 @@ export class FileOutputAction implements OutputAction {
       }
       const workspaceDir = getWorkspaceRoot();
       const getPath = (p: string) =>
-        path.isAbsolute(p) ? p : path.join(workspaceDir, p);    
+        path.isAbsolute(p) ? p : path.join(workspaceDir, p);
       const fileName = getPath(resolveEnvVars(this.fileName));
       const writeToFile = () => {
         const str = createWriteStream(fileName, {

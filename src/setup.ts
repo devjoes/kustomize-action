@@ -49,7 +49,7 @@ export type Settings = {
   customValidation: {regex: RegExp; expected: boolean; message: string}[];
   requiredBins: string[];
   kustomizeArgs: string;
-  validateWithKubeVal:boolean;
+  validateWithKubeVal: boolean;
 };
 
 export const parseAllowedSecrets = (secretString: string) =>
@@ -109,7 +109,7 @@ export const getSettings = (isAction: boolean): Settings => {
     isAction
       ? core.getInput(actionSettingName, {required: required})
       : (required ? getRequiredFromEnv : getFromEnv)(envVarName);
-  
+
   const kustomizePath = getSetting('kustomize-path', 'KUSTOMIZE_PATH', true);
   const outputActions = getSetting('output-actions', 'OUTPUT_ACTIONS', true);
   const extraResources = getSetting('extra-resources', 'EXTRA_RESOURCES');
@@ -121,8 +121,11 @@ export const getSettings = (isAction: boolean): Settings => {
   const allowedSecrets = getSetting('allowed-secrets', 'ALLOWED_SECRETS');
   const requiredBins = getSetting('required-bins', 'REQUIRED_BINS');
   const verbose = getSetting('verbose', 'VERBOSE');
-  const validateWithKubeVal = getSetting('validate-with-kubeval','VALIDATE_WITH_KUBEVAL');
-  const kustomizeArgs = getSetting('kustomize-args','KUSTOMIZE_ARGS');
+  const validateWithKubeVal = getSetting(
+    'validate-with-kubeval',
+    'VALIDATE_WITH_KUBEVAL'
+  );
+  const kustomizeArgs = getSetting('kustomize-args', 'KUSTOMIZE_ARGS');
 
   const workspaceDir = getWorkspaceRoot();
   const getPath = (p: string) =>
@@ -154,8 +157,9 @@ export const getSettings = (isAction: boolean): Settings => {
           .split(/,/g)
           .map(s => s.trim())
       : ['kustomize', 'kubeval', 'helm'],
-      kustomizeArgs: resolveEnvVars(kustomizeArgs|| defaultKustomizeArgs),
-      validateWithKubeVal: resolveEnvVars(validateWithKubeVal || '').toLowerCase() === 'true',
+    kustomizeArgs: resolveEnvVars(kustomizeArgs || defaultKustomizeArgs),
+    validateWithKubeVal:
+      resolveEnvVars(validateWithKubeVal || '').toLowerCase() === 'true'
   };
 };
 
@@ -180,4 +184,4 @@ export const validateSettings = (settings: Settings) =>
     ),
     ...(settings.extraResources || []).map(statFile)
   ]);
-export const defaultKustomizeArgs="--enable_alpha_plugins";
+export const defaultKustomizeArgs = '--enable_alpha_plugins';

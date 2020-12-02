@@ -13,7 +13,7 @@ import {
   parseActions
 } from './outputs';
 import {defaultKustomizeArgs, Settings} from './setup';
-import { mockedCwd } from './utils';
+import {mockedCwd} from './utils';
 
 describe('output actions', () => {
   const testSettings: Settings = {
@@ -24,8 +24,8 @@ describe('output actions', () => {
     extraResources: [],
     customValidation: [],
     requiredBins: [],
-    kustomizeArgs:defaultKustomizeArgs,
-    validateWithKubeVal:true
+    kustomizeArgs: defaultKustomizeArgs,
+    validateWithKubeVal: true
   };
   const testYaml = `
 foo: bar
@@ -112,7 +112,7 @@ foo:
         fs.mkdirSync(path.join(tmpDir.name, 'root', '.git'), {
           recursive: true
         });
-        fs.mkdirSync(path.dirname(tmpPath), {recursive:true});
+        fs.mkdirSync(path.dirname(tmpPath), {recursive: true});
         action.fileName = '.' + tmpPath.substr(tmpPath.indexOf('/foo-'));
         mockedCwd(path.dirname(tmpPath));
         try {
@@ -126,7 +126,7 @@ foo:
             buildTestLogger()
           );
         } finally {
-          mockedCwd(__dirname)
+          mockedCwd(__dirname);
         }
         expect(fs.readFileSync(tmpPath).toString()).toEqual(testYaml);
       } finally {
@@ -278,10 +278,8 @@ const mockGitHub = () => {
   github.context.ref = 'refs/heads/some-ref';
   github.context.sha = '1234567890123456789012345678901234567890';
   const outputVars: any = {};
-  jest
-    .spyOn(core, 'setOutput')
-    .mockImplementation((name: string, val: any) => {
-      outputVars[name] = val;
-    });
+  jest.spyOn(core, 'setOutput').mockImplementation((name: string, val: any) => {
+    outputVars[name] = val;
+  });
   return {outputVars};
 };
