@@ -12,9 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       INPUT_PATH: "./example/input/dev"
-      OUTPUT_DIR: "./example/output"
-      EXTRA_RESOURCES: "$OUTPUT_DIR/test.yaml,$OUTPUT_DIR/core-infra.yaml"
-      OUTPUT_FILE: "$OUTPUT_DIR/dev.yaml"
+      EXTRA_RESOURCES: "./example/output/test.yaml,./example/output/core-infra.yaml"
+      OUTPUT_FILE: "./example/output/dev.yaml"
     steps:
       - name: Setup environment
         env:
@@ -80,8 +79,8 @@ jobs:
               exit 0
             fi
             git fetch --unshallow
-            echo "$YAML" | sha1sum > $OUTPUT_DIR/output.hash
-            git add $OUTPUT_FILE $OUTPUT_DIR/output.hash
+            #echo "$YAML" | sha1sum > $(dirname $OUTPUT_FILE)/output.hash
+            git add $OUTPUT_FILE #$(dirname $OUTPUT_FILE)/output.hash
             git commit -m "Updated deployed YAML from $GITHUB_WORKFLOW"
             git push origin HEAD:$GITHUB_HEAD_REF
 
