@@ -21,7 +21,7 @@ jobs:
         env:
           FOO: ${{ toJson(github) }}
         run: |
-          set -x; echo $FOO
+          set -x; echo $FOO | jq .
           mkdir -p "/tmp/tmp_${GITHUB_RUN_ID}/"
           echo 'resources: [ main.yaml ]' > "/tmp/tmp_${GITHUB_RUN_ID}/kustomization.yaml"
           #export KUSTOMIZE_PLUGIN_HOME=/tmp/kustomize; mkdir -p $KUSTOMIZE_PLUGIN_HOME
