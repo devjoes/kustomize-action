@@ -10,6 +10,7 @@ export const resolveEnvVars = (str: string | undefined) =>
       )
     : '';
 
+
 export const getBinPath = (bin: string): Promise<string | undefined> =>
   new Promise<string | undefined>(res => {
     const possPaths = (process.env.PATH || '')
