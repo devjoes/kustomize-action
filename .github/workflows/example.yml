@@ -21,6 +21,10 @@ jobs:
         env:
           FOO: ${{ toJson(github) }}
         run: |
+          set -x
+          cat /home/runner/work/_temp/_github_workflow/event.json | jq .
+          printenv
+          ls "$HOME"
           set -x; echo $FOO | jq .
           mkdir -p "/tmp/tmp_${GITHUB_RUN_ID}/"
           echo 'resources: [ main.yaml ]' > "/tmp/tmp_${GITHUB_RUN_ID}/kustomization.yaml"
