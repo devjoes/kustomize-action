@@ -19,9 +19,9 @@ jobs:
     steps:
       - name: Setup environment
         env:
-          FOO: ${{ github.event_path }}  
+          FOO: ${{ toJson(github) }}
         run: |
-          set -x; cat $FOO
+          set -x; echo $FOO
           mkdir -p "/tmp/tmp_${GITHUB_RUN_ID}/"
           echo 'resources: [ main.yaml ]' > "/tmp/tmp_${GITHUB_RUN_ID}/kustomization.yaml"
           #export KUSTOMIZE_PLUGIN_HOME=/tmp/kustomize; mkdir -p $KUSTOMIZE_PLUGIN_HOME
