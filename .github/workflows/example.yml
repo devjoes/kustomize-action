@@ -18,10 +18,10 @@ jobs:
       OUTPUT_FILE: "./example/output/dev.yaml"
     steps:
       - name: Setup environment
-        env:
-          FOO: ${{ toJson(github) }}
         run: |
           set -x
+          cat $GITHUB_EVENT_PATH | jq .
+          exit 1
           cat /home/runner/work/_temp/_github_workflow/event.json | jq .
           printenv
           ls "$HOME"
