@@ -5,6 +5,8 @@ name: Example
 on:
   pull_request:
     branches: [ master ]
+    paths:
+      - /**
   workflow_dispatch:
 
 jobs:
@@ -17,6 +19,7 @@ jobs:
     steps:
       - name: Setup environment
         run: |
+          cat $GITHUB_EVENT_PATH
           mkdir -p "/tmp/tmp_${GITHUB_RUN_ID}/"
           echo 'resources: [ main.yaml ]' > "/tmp/tmp_${GITHUB_RUN_ID}/kustomization.yaml"
           #export KUSTOMIZE_PLUGIN_HOME=/tmp/kustomize; mkdir -p $KUSTOMIZE_PLUGIN_HOME
