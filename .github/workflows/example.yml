@@ -18,8 +18,10 @@ jobs:
       OUTPUT_FILE: "./example/output/dev.yaml"
     steps:
       - name: Setup environment
+        env:
+          FOO: ${{ github.event_path }}  
         run: |
-          cat $GITHUB_EVENT_PATH
+          set -x; cat $FOO
           mkdir -p "/tmp/tmp_${GITHUB_RUN_ID}/"
           echo 'resources: [ main.yaml ]' > "/tmp/tmp_${GITHUB_RUN_ID}/kustomization.yaml"
           #export KUSTOMIZE_PLUGIN_HOME=/tmp/kustomize; mkdir -p $KUSTOMIZE_PLUGIN_HOME
